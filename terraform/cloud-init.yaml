@@ -1,0 +1,10 @@
+# filename: terraform/cloud-init.yaml
+#cloud-config
+package_update: true
+packages:
+  - curl
+  - unzip
+  - ca-certificates
+  - jq
+runcmd:
+  - [ bash, -lc, "echo 'Cloud-init complete' > /var/log/innovizion-cloud-init.log" ]

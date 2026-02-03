@@ -1,0 +1,26 @@
+# filename: ansible/roles/dynatrace_oneagent/tasks/main.yml
+- name: Fail if required env vars missing
+  ansible.builtin.fail:
+    msg: "DT_TENANT_URL and DT_PAAS_TOKEN must be provided as environment variables."
+  when: lookup('env', 'DT_TENANT_URL') == '' or lookup('env', 'DT_PAAS_TOKEN') == ''
+
+- name: Download OneAgent installer (Linux)
+  ansible.builtin.get_url:
+    url: "{{ lookup('env','DT_TENANT_URL') }}/api/v1/deployment/installer/agent/unix/default/latest?arch=x86&flavor=default"
+    dest: /tmp/Dynatrace-OneAgent.sh
+    mode: "0755"
+    headers:
+      Authorization: "Api-Token {{ lookup('env','DT_PAAS_TOKEN') }}"
+
+- name: Install OneAgent (silent)
+  ansible.builtin.command: >
+    /tmp/Dynatrace-OneAgent.sh --quiet
+  args:
+    creates: /opt/dynatrace/oneagent
+
+- name: Ensure OneAgent service is running (may be named differently in some distros)
+  ansible.builtin.systemd:
+    name: oneagent
+    state: started
+    enabled: true
+  ignore_errors: true

@@ -1,0 +1,23 @@
+{
+    "name": "Innovizion Auto-Tag",
+    "description": "Auto-tag hosts with Innovizion tag based on host name prefix",
+    "rules": [
+      {
+        "type": "ME",
+        "enabled": true,
+        "valueFormat": "innovizion",
+        "normalization": "LEAVE_TEXT_AS_IS",
+        "attributeRule": {
+          "entityType": "HOST",
+          "conditions": [
+            {
+              "key": "HOST_NAME",
+              "operator": "CONTAINS",
+              "stringValue": "innovizion"
+            }
+          ]
+        }
+      }
+    ]
+  }
+  

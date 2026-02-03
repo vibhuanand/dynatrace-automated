@@ -1,0 +1,6 @@
+# filename: ansible/playbooks/install-oneagent.yml
+- name: Install Dynatrace OneAgent
+  hosts: oneagent
+  become: true
+  roles:
+    - dynatrace_oneagent

@@ -1,0 +1,9 @@
+# filename: dynatrace/monaco/manifest.yaml
+manifestVersion: "1.0"
+projects:
+  - name: innovizion-governance
+    path: projects/innovizion-governance
+environmentGroups:
+  - name: default
+    environments:
+      - name: dev

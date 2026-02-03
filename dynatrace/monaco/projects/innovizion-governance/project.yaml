@@ -1,0 +1,31 @@
+# filename: dynatrace/monaco/projects/innovizion-governance/project.yaml
+configs:
+  - id: innovizion-mz
+    type:
+      api: management-zones
+    config:
+      name: management-zone.json
+
+  - id: innovizion-autotag
+    type:
+      api: auto-tags
+    config:
+      name: auto-tag.json
+
+  - id: innovizion-dashboard
+    type:
+      api: dashboards
+    config:
+      name: dashboard.json
+
+  - id: innovizion-alert-profile
+    type:
+      api: alerting-profiles
+    config:
+      name: alerting-profile.json
+
+  - id: innovizion-slo
+    type:
+      api: slo
+    config:
+      name: slo.json
