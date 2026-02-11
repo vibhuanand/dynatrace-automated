@@ -1,0 +1,11 @@
+inventory:
+  ssh:
+    user: ubuntu
+    privateKeyRef: file:build/id_ed25519
+  hosts:
+    - name: prod-app01
+      ip: 10.0.1.10
+      groups: [oneagent]
+    - name: prod-ag01
+      ip: 10.0.1.20
+      groups: [activegate]

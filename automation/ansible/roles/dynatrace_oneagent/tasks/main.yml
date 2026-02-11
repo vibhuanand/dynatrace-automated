@@ -1,0 +1,36 @@
+---
+- ansible.builtin.assert:
+    that:
+      - dt_env_url is defined
+      - dt_api_token is defined
+
+- ansible.builtin.set_fact:
+    dt_env_url_base: "{{ dt_env_url | regex_replace(/+,) }}"
+
+- ansible.builtin.set_fact:
+    dt_oneagent_url: >-
+      {{ dt_env_url_base }}/api/v1/deployment/installer/agent/unix/default/latest
+      {%- if (dt_network_zone | default() | length) > 0 -%}
+      ?networkZone={{ dt_network_zone | urlencode }}
+      {%- endif -%}
+
+- ansible.builtin.stat:
+    path: /opt/dynatrace/oneagent/agent/bin/oneagentctl
+  register: oneagentctl
+
+- ansible.builtin.get_url:
+    url: "{{ dt_oneagent_url }}"
+    dest: /tmp/dynatrace-oneagent.sh
+    mode: "0755"
+    headers:
+      Authorization: "Api-Token {{ dt_api_token }}"
+  when: not oneagentctl.stat.exists
+
+- ansible.builtin.command: >-
+    /bin/sh /tmp/dynatrace-oneagent.sh
+    --set-monitoring-mode={{ dt_monitoring_mode }}
+    {% if (dt_network_zone | default() | length) > 0 %}--set-network-zone={{ dt_network_zone }}{% endif %}
+    {% if (dt_host_group | default() | length) > 0 %}--set-host-group={{ dt_host_group }}{% endif %}
+  args:
+    creates: /opt/dynatrace/oneagent/agent/bin/oneagentctl
+  when: not oneagentctl.stat.exists

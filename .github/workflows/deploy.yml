@@ -1,0 +1,133 @@
+name: dynatrace-automated
+
+on:
+  workflow_dispatch:
+    inputs:
+      plan:
+        required: true
+        default: deploy/deployment.plan.yml
+      action:
+        required: true
+        type: choice
+        options: [apply, destroy]
+        default: apply
+
+permissions:
+  contents: read
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    env:
+      PLAN_PATH: ${{ github.event.inputs.plan }}
+      ACTION: ${{ github.event.inputs.action }}
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install tools
+        run: |
+          python -m pip install --upgrade pip
+          pip install pyyaml jsonschema ansible-core
+
+
+      - name: Write SSH key
+        if: env.ACTION == 'apply'
+        env:
+          SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
+        run: |
+          python automation/engine/write_ssh_key.py --out build/id_ed25519 || true
+
+      - name: Validate plan
+        run: |
+          python automation/engine/validate_plan.py --plan "$PLAN_PATH"
+
+      - name: Detect mode
+        id: mode
+        run: |
+          python automation/engine/plan_mode.py --plan "$PLAN_PATH" >> "$GITHUB_OUTPUT"
+
+
+      - name: Terraform SSH public key (from private key)
+        if: steps.mode.outputs.mode == 'managed' && env.ACTION == 'apply'
+        run: |
+          test -f build/id_ed25519 || { echo "missing build/id_ed25519"; exit 2; }
+          python automation/engine/derive_ssh_public_key.py --private-key build/id_ed25519 --print-env >> "$GITHUB_ENV"
+
+      - name: Render plan
+        run: |
+          python automation/engine/render_plan.py --plan "$PLAN_PATH" --out-dir build
+
+      - name: Build runtime
+        if: env.ACTION == apply
+        run: |
+          python automation/engine/runtime_from_plan.py --plan "$PLAN_PATH" --out build/runtime.json
+
+      - name: Setup Terraform
+        if: steps.mode.outputs.mode == 'managed'
+        uses: hashicorp/setup-terraform@v3
+
+      - name: Terraform init
+        if: steps.mode.outputs.mode == 'managed'
+        working-directory: infra/azure/managed
+        run: terraform init -input=false
+
+      - name: Terraform apply/destroy
+        if: steps.mode.outputs.mode == 'managed'
+        working-directory: infra/azure/managed
+        env:
+          ARM_CLIENT_ID: ${{ secrets.ARM_CLIENT_ID }}
+          ARM_CLIENT_SECRET: ${{ secrets.ARM_CLIENT_SECRET }}
+          ARM_SUBSCRIPTION_ID: ${{ secrets.ARM_SUBSCRIPTION_ID }}
+          ARM_TENANT_ID: ${{ secrets.ARM_TENANT_ID }}
+        run: |
+          if [ "$ACTION" = "destroy" ]; then
+            terraform destroy -auto-approve -input=false
+          else
+            terraform apply -auto-approve -input=false
+          fi
+
+      - name: Export TF outputs
+        if: steps.mode.outputs.mode == 'managed' && env.ACTION == 'apply'
+        working-directory: infra/azure/managed
+        run: |
+          python ../../automation/engine/tf_export_outputs.py --terraform-dir . --out ../../build/terraform.outputs.json
+
+      - name: Build inventory
+        if: env.ACTION == 'apply'
+        run: |
+          python automation/engine/build_inventory.py \
+            --plan "$PLAN_PATH" \
+            --out automation/ansible/inventory/generated.ini \
+            --terraform-dir infra/azure/managed \
+            --ssh-key build/id_ed25519 || true
+
+      - name: Ansible
+        if: env.ACTION == apply
+        env:
+          DT_ENV_URL: ${{ secrets.DT_ENV_URL }}
+          DT_API_TOKEN: ${{ secrets.DT_API_TOKEN }}
+        run: |
+          test -f automation/ansible/inventory/generated.ini || { echo "inventory missing"; exit 2; }
+          ANSIBLE_CONFIG=automation/ansible/ansible.cfg \
+          ansible-playbook automation/ansible/playbooks/site.yml \
+            -i automation/ansible/inventory/generated.ini \
+            --extra-vars "@build/runtime.json"
+
+      - name: Monaco env (from runtime)
+        if: env.ACTION == 'apply'
+        run: |
+          test -f build/runtime.json || { echo "missing build/runtime.json"; exit 2; }
+          python automation/engine/runtime_monaco_env.py --runtime build/runtime.json >> "$GITHUB_ENV"
+
+      - name: Monaco
+        if: env.ACTION == 'apply'
+        env:
+          DT_ENV_URL: ${{ secrets.DT_ENV_URL }}
+          DT_PLATFORM_TOKEN: ${{ secrets.DT_PLATFORM_TOKEN }}
+        run: |
+          bash platform/monaco/run.sh

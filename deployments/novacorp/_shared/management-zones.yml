@@ -1,0 +1,18 @@
+dynatrace:
+  config:
+    managementZones:
+      - name: "MZ-NOVACORP-PROD"
+        enabled: true
+        rules:
+          - entityType: HOST
+            match: "tag(org:novacorp) AND tag(env:prod)"
+          - entityType: SERVICE
+            match: "tag(org:novacorp) AND tag(env:prod)"
+
+      - name: "MZ-NOVACORP-STAGE"
+        enabled: true
+        rules:
+          - entityType: HOST
+            match: "tag(org:novacorp) AND tag(env:stage)"
+          - entityType: SERVICE
+            match: "tag(org:novacorp) AND tag(env:stage)"

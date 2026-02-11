@@ -1,0 +1,16 @@
+dynatrace:
+  config:
+    slos:
+      - name: "SLO-API-Availability"
+        enabled: true
+        mgmtZone: "MZ-NOVACORP-PROD"
+        target: 99.9
+        warning: 99.95
+        timeframe: "7d"
+        sli:
+          type: dql
+          query: |
+            timeseries total = sum(dt.service.request.count),
+                       fail  = sum(dt.service.request.failure_count)
+            | fieldsAdd sli = (((total[] - fail[]) / total[]) * 100)
+            | fieldsRemove total, fail

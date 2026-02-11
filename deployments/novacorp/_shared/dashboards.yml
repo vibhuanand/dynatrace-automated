@@ -1,0 +1,7 @@
+dynatrace:
+  config:
+    dashboards:
+      - name: "DB-NOVACORP-PROD-Overview"
+        enabled: true
+        managementZone: "MZ-NOVACORP-PROD"
+        definition: {}   # renderer can map to classic/new dashboard API later

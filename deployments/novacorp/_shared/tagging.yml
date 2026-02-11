@@ -1,0 +1,29 @@
+dynatrace:
+  config:
+    tags:
+      manual:
+        - key: org
+          value: novacorp
+          selector: "type(HOST),type(SERVICE),type(PROCESS_GROUP)"
+        - key: managed_by
+          value: dynatrace-automated
+          selector: "type(HOST),type(SERVICE)"
+
+      rules:
+        - name: env-from-hostname-prod
+          enabled: true
+          match:
+            entityType: HOST
+            rule: "host.name contains 'prod'"
+          tag:
+            key: env
+            value: prod
+
+        - name: env-from-hostname-stage
+          enabled: true
+          match:
+            entityType: HOST
+            rule: "host.name contains 'stage'"
+          tag:
+            key: env
+            value: stage

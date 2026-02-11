@@ -1,0 +1,9 @@
+---
+- import_playbook: deploy-agents.yml
+
+- name: Verify
+  hosts: oneagent:activegate
+  become: true
+  gather_facts: false
+  roles:
+    - dynatrace_verify

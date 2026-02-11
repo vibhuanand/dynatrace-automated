@@ -1,0 +1,20 @@
+---
+- name: OneAgent
+  hosts: oneagent
+  become: true
+  gather_facts: true
+  vars:
+    dt_env_url: "{{ dt_env_url | default(lookup(env,DT_ENV_URL), true) }}"
+    dt_api_token: "{{ dt_api_token | default(lookup(env,DT_API_TOKEN), true) }}"
+  roles:
+    - dynatrace_oneagent
+
+- name: ActiveGate
+  hosts: activegate
+  become: true
+  gather_facts: true
+  vars:
+    dt_env_url: "{{ dt_env_url | default(lookup(env,DT_ENV_URL), true) }}"
+    dt_api_token: "{{ dt_api_token | default(lookup(env,DT_API_TOKEN), true) }}"
+  roles:
+    - dynatrace_activegate

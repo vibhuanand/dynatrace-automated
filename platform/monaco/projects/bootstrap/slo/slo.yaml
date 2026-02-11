@@ -1,0 +1,13 @@
+configs:
+  - id: dynatrace-automated-slo
+    type: slo-v2
+    config:
+      name: Dynatrace Automated - Sample SLO
+      parameters:
+        name: dynatrace-automated-slo
+        tags:
+          type: list
+          values:
+            - "source:dynatrace-automated"
+      template: slo.json
+      skip: false

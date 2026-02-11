@@ -1,0 +1,53 @@
+dynatrace:
+  config:
+    alerting:
+      profiles:
+        - name: "AP-NOVACORP-PROD"
+          enabled: true
+          managementZone: "MZ-NOVACORP-PROD"
+          severityRules:
+            - severity: AVAILABILITY
+              enabled: true
+            - severity: PERFORMANCE
+              enabled: true
+          eventFilters:
+            includeTags:
+              - "org:novacorp"
+              - "env:prod"
+
+        - name: "AP-NOVACORP-STAGE"
+          enabled: true
+          managementZone: "MZ-NOVACORP-STAGE"
+          severityRules:
+            - severity: AVAILABILITY
+              enabled: true
+            - severity: PERFORMANCE
+              enabled: true
+          eventFilters:
+            includeTags:
+              - "org:novacorp"
+              - "env:stage"
+
+      notifications:
+        - name: "N-SLACK-ONCALL"
+          type: slack
+          enabled: true
+          connection:
+            webhookUrlRef: env:SLACK_WEBHOOK_URL
+          messageTemplate: |
+            [Dynatrace] {{problem.severity}} | {{problem.title}}
+            Impact: {{problem.impactLevel}}
+            URL: {{problem.url}}
+
+        - name: "N-EMAIL-ONCALL"
+          type: email
+          enabled: true
+          connection:
+            to: ["oncall@novacorp.example"]
+          subject: "[DT] {{problem.severity}} - {{problem.title}}"
+
+      routes:
+        - profile: "AP-NOVACORP-PROD"
+          notify: ["N-SLACK-ONCALL", "N-EMAIL-ONCALL"]
+        - profile: "AP-NOVACORP-STAGE"
+          notify: ["N-SLACK-ONCALL"]

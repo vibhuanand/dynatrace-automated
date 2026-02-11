@@ -1,0 +1,5 @@
+build/
+.tools/
+**/.terraform/
+**/terraform.tfstate*
+automation/ansible/inventory/generated.ini

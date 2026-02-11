@@ -1,0 +1,12 @@
+dynatrace:
+  config:
+    maintenanceWindows:
+      - name: "MW-PROD-WeeklyPatch"
+        enabled: false
+        scope:
+          managementZone: "MZ-NOVACORP-PROD"
+        schedule:
+          type: weekly
+          day: Sunday
+          startTime: "02:00"
+          durationMinutes: 120

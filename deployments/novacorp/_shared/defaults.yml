@@ -1,0 +1,24 @@
+dynatrace:
+  tenant:
+    envUrl: ${DT_ENV_URL}
+    tokens:
+      deploymentApi: env:DT_API_TOKEN
+      platform: env:DT_PLATFORM_TOKEN
+
+  agents:
+    oneagent:
+      enabled: true
+      monitoringMode: fullstack   # fullstack | infra-only | discovery
+      hostGroup: ""
+      networkZone: ""
+    activegate:
+      enabled: true
+      networkZone: ""
+
+  config:
+    monaco:
+      manifestPath: platform/monaco/manifest.yaml
+      selection:
+        group: default
+        environment: target
+        project: bootstrap

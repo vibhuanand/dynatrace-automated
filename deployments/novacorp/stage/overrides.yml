@@ -1,0 +1,7 @@
+dynatrace:
+  agents:
+    oneagent:
+      hostGroup: stage-hosts
+      networkZone: stage-nz
+    activegate:
+      networkZone: stage-nz

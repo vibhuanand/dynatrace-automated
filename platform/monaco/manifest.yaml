@@ -1,0 +1,17 @@
+manifestVersion: 1.0
+
+projects:
+  - name: bootstrap
+    path: platform/monaco/projects/bootstrap
+
+environmentGroups:
+  - name: default
+    environments:
+      - name: target
+        url:
+          type: environment
+          value: DT_ENV_URL
+        auth:
+          platformToken:
+            type: environment
+            name: DT_PLATFORM_TOKEN

@@ -1,0 +1,11 @@
+dynatrace:
+  config:
+    synthetics:
+      httpMonitors:
+        - name: "HTTP-PROD-Health"
+          enabled: true
+          frequencyMinutes: 5
+          locations: ["GEOLOCATION-1"]
+          url: "https://api.novacorp.example/health"
+          validation:
+            statusCode: 200

@@ -1,0 +1,7 @@
+dynatrace:
+  agents:
+    oneagent:
+      hostGroup: prod-hosts
+      networkZone: prod-nz
+    activegate:
+      networkZone: prod-nz

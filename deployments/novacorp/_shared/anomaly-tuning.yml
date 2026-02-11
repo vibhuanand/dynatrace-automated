@@ -1,0 +1,8 @@
+dynatrace:
+  config:
+    anomalyDetection:
+      service:
+        responseTimeSensitivity: medium
+        failureRateSensitivity: medium
+      host:
+        cpuSaturationAlerting: true

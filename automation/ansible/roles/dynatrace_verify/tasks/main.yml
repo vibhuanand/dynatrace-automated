@@ -1,0 +1,16 @@
+---
+- name: OneAgent present
+  ansible.builtin.stat:
+    path: /opt/dynatrace/oneagent/agent/bin/oneagentctl
+  register: oneagentctl
+
+- name: ActiveGate present
+  ansible.builtin.stat:
+    path: /opt/dynatrace/gateway
+  register: agdir
+
+- name: Print status
+  ansible.builtin.debug:
+    msg:
+      - "oneagentctl={{ oneagentctl.stat.exists | default(false) }}"
+      - "activegate={{ agdir.stat.exists | default(false) }}"

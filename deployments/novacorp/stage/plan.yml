@@ -1,0 +1,25 @@
+apiVersion: dynatrace-automated/v1
+kind: DeploymentPlan
+metadata:
+  org: novacorp
+  env: stage
+  name: novacorp-stage
+
+imports:
+  - deployments/novacorp/_shared/defaults.yml
+  - deployments/novacorp/_shared/tagging.yml
+  - deployments/novacorp/_shared/management-zones.yml
+  - deployments/novacorp/_shared/alerting.yml
+  - deployments/novacorp/_shared/slos.yml
+  - deployments/novacorp/_shared/synthetics.yml
+  - deployments/novacorp/_shared/dashboards.yml
+  - deployments/novacorp/_shared/maintenance.yml
+  - deployments/novacorp/_shared/anomaly-tuning.yml
+  - deployments/novacorp/stage/overrides.yml
+
+deployment:
+  mode: saas
+  steps:
+    terraform: false
+    ansible: true
+    monaco: true
