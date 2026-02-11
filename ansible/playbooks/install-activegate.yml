@@ -1,6 +1,0 @@
-# filename: ansible/playbooks/install-activegate.yml
-- name: Install Dynatrace ActiveGate
-  hosts: activegate
-  become: true
-  roles:
-    - dynatrace_activegate
